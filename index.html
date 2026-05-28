@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>节气菜园 · 蔬菜种植小册子 | 5页卡片叠放 · 点击翻页</title>
+    <!-- Font Awesome 6 免费图标库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #d4e2c3 0%, #b8d0a0 100%);
+            font-family: 'Segoe UI', 'Roboto', 'Noto Sans', system-ui, -apple-system, 'Helvetica Neue', sans-serif;
+            padding: 2rem 1.2rem;
+            color: #1e3a2f;
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+
+        /* 全局头部 */
+        .global-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .global-header h1 {
+            font-size: 2.2rem;
+            background: linear-gradient(135deg, #1a471a, #578b2c);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            text-shadow: 2px 2px 6px rgba(0,0,0,0.05);
+        }
+        .global-header p {
+            color: #2b5320;
+            background: #faf7e8cc;
+            display: inline-block;
+            padding: 0.3rem 1.5rem;
+            border-radius: 40px;
+            font-size: 0.9rem;
+            backdrop-filter: blur(3px);
+        }
+
+        /* 蔬菜网格 - 响应式显示 */
+        .veggies-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            justify-content: center;
+            align-items: stretch;
+        }
+
+        /* 每个植物独立卡片册容器 */
+        .plant-cardstack {
+            background: rgba(255, 252, 235, 0.95);
+            border-radius: 36px;
+            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.3);
+            width: 360px;
+            max-width: 100%;
+            overflow: hidden;
+            transition: transform 0.2s;
+            backdrop-filter: blur(0px);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .plant-cardstack:hover {
+            transform: translateY(-6px);
+        }
+
+        /* 蔬菜头部(icon + 名称) */
+        .veg-stack-header {
+            background: #fff9e6;
+            padding: 0.9rem 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            border-bottom: 3px solid #98bf64;
+            border-radius: 36px 36px 0 0;
+        }
+        .veg-stack-icon {
+            font-size: 2.6rem;
+            filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.15));
+        }
+        .veg-stack-name {
+            font-size: 1.7rem;
+            font-weight: 800;
+            color: #2a5e2a;
+            letter-spacing: -0.5px;
+        }
+        .veg-stack-badge {
+            margin-left: auto;
+            background: #e2dbb8;
+            padding: 0.2rem 0.7rem;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            color: #557a2c;
+        }
+
+        /* 卡片堆叠区域 (单卡片视图) */
+        .cards-stack {
+            position: relative;
+            min-height: 480px;
+            background: #fef9e9;
+            border-radius: 0 0 32px 32px;
+            padding: 1.2rem 1rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        /* 单个卡片容器 (叠放，只显示当前激活卡片) */
+        .card-slot {
+            position: relative;
+            width: 100%;
+            min-height: 380px;
+        }
+        .single-card {
+            background: linear-gradient(145deg, #ffffff, #fffaf0);
+            border-radius: 32px;
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+            padding: 1.4rem 1.2rem;
+            transition: all 0.2s;
+            border: 1px solid #eedfa0;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100%;
+            min-height: 380px;
+        }
+
+        /* 页码指示 */
+        .page-indicator {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px dashed #cfc68f;
+        }
+        .page-number {
+            background: #e4e0bf;
+            padding: 0.2rem 0.9rem;
+            border-radius: 40px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            color: #4a682a;
+        }
+        .page-total {
+            font-size: 0.7rem;
+            color: #8f7a44;
+        }
+
+        /* 卡片主要内容区 */
+        .card-content {
+            flex: 1;
+            margin: 0.5rem 0 1rem;
+        }
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: #306d24;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .card-title i {
+            font-size: 1.2rem;
+        }
+        .info-text {
+            font-size: 0.88rem;
+            line-height: 1.45;
+            color: #2c4b23;
+            margin: 0.7rem 0;
+        }
+        .proverb-box {
+            background: #f9f0cf;
+            padding: 0.6rem 0.8rem;
+            border-radius: 24px;
+            font-style: italic;
+            font-size: 0.8rem;
+            margin: 0.8rem 0;
+            border-left: 5px solid #b2cf6e;
+            color: #6a4e2b;
+        }
+        .badge {
+            background: #deecc2;
+            padding: 0.2rem 0.7rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            display: inline-block;
+            margin-right: 6px;
+        }
+        .plant-step {
+            background: #f2f6e6;
+            border-radius: 20px;
+            padding: 0.5rem 0.8rem;
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+        }
+        hr {
+            margin: 0.5rem 0;
+            border-color: #e7dfb6;
+        }
+
+        /* 按钮区域 */
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: 0.8rem;
+            margin-top: 1rem;
+        }
+        .nav-btn {
+            background: #ccdfaa;
+            border: none;
+            padding: 0.6rem 0.9rem;
+            border-radius: 60px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 0.8rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #2f5a1f;
+            flex: 1;
+            justify-content: center;
+        }
+        .nav-btn:hover {
+            background: #b7d17e;
+            transform: scale(0.97);
+            color: #1f3f12;
+        }
+        .nav-btn:active {
+            background: #9ebe64;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 2.8rem;
+            font-size: 0.75rem;
+            color: #1f4919;
+            background: #eef0ddc9;
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 0.4rem 1.2rem;
+            border-radius: 60px;
+        }
+
+        @media (max-width: 750px) {
+            .plant-cardstack { width: 100%; max-width: 400px; margin: 0 auto; }
+            .veg-stack-name { font-size: 1.4rem; }
+            .cards-stack { min-height: 520px; }
+            .single-card { padding: 1rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="global-header">
+        <h1><i class="fas fa-book"></i> 节气种植手札 · 卡片式小册子 <i class="fas fa-leaf"></i></h1>
+        <p>📖 每种蔬菜拥有5页卡片，一卡一页，智慧农耕</p>
+    </div>
+
+    <div class="veggies-grid" id="vegetable-grid"></div>
+    <footer>
+        🌟 每一株蔬菜都是一本迷你手册 · 按节气播种种植计划 🌟
+    </footer>
+</div>
+
+<script>
+    // --------------------------------------------------------------
+    // 精准蔬菜数据（含完整5页内容，每个植物独立）
+    // --------------------------------------------------------------
+    const vegetablesData = [
+        { name: "黄瓜", icon: "🥒", bestSeason: "谷雨、立夏", seasonDesc: "喜温暖湿润，春末夏初播种，初夏采收", proverb: "谷雨栽上红薯秧，立夏黄瓜把架爬", features: "爬藤植物，需要搭架子，开花结果过程非常直观。", plantPlan: "① 谷雨后催芽播种，育苗移栽或直播；② 苗高20cm搭人字架引蔓；③ 开花期保持充足水分，侧枝适当摘心；④ 嫩瓜及时采收促进后续坐果；⑤ 注意白粉病，轮作管理。" },
+        { name: "番茄", icon: "🍅", bestSeason: "清明、谷雨", seasonDesc: "喜温喜光，春季育苗，夏季盛果", proverb: "清明下种，谷雨栽秧", features: "从青变红的过程极具色彩美感，适合观察果实成熟。", plantPlan: "① 3月育苗，清明后定植；② 株距40cm，施足底肥；③ 单干整枝，及时绑蔓；④ 结果期追磷钾肥，防脐腐病；⑤ 转色期控水增甜，分批采收。" },
+        { name: "茄子", icon: "🍆", bestSeason: "谷雨、立夏", seasonDesc: "耐热喜光，与辣椒、番茄并称为“夏季三宝”", proverb: "立夏种茄子，立秋吃茄子", features: "花期长，果实形态各异（长茄、圆茄），紫色花朵也很漂亮。", plantPlan: "① 谷雨前后播种或购苗定植；② 喜光，保持日照充足；③ 门茄以下侧枝全部抹除；④ 结果期勤施薄肥；⑤ 及时采收嫩茄，促进后续产量。" },
+        { name: "南瓜", icon: "🎃", bestSeason: "谷雨、立夏", seasonDesc: "生命力极强，耐贫瘠，夏秋皆可收获", proverb: "房前屋后，种瓜种豆（主要指南瓜、丝瓜）", features: "叶片巨大，黄花鲜艳，非常适合观察植物的藤蔓生长。", plantPlan: "① 直播或育苗，每穴2-3粒；② 需大空间或搭棚架；③ 压蔓促进不定根；④ 雌花开放时人工辅助授粉；⑤ 充分成熟后采收，耐储存。" },
+        { name: "丝瓜", icon: "🥒", bestSeason: "清明、谷雨", seasonDesc: "喜高温高湿，福州地区春夏皆可播种", proverb: "清明前后，种瓜点豆；小满种丝瓜，搭架又开花", features: "生长速度极快，老丝瓜络还可以用来做洗碗布，全株可用。", plantPlan: "① 浸种催芽，清明后播种；② 搭平棚或拱架引蔓；③ 结瓜期需足水足肥；④ 嫩瓜及时采收；⑤ 留种老瓜制丝瓜络，生态环保。" },
+        { name: "苦瓜", icon: "🥒", bestSeason: "谷雨、立夏", seasonDesc: "耐热耐湿，越热长得越好", proverb: "立夏种苦瓜，清热又解乏", features: "表面有瘤状突起，独特的苦味是很好的食育素材。", plantPlan: "① 种子破壳催芽，谷雨后播种；② 搭篱架或人字架；③ 及时摘除基部侧蔓；④ 开花结果需强光照；⑤ 苦瓜七八分熟采收苦味适中。" },
+        { name: "冬瓜", icon: "🍈", bestSeason: "清明、谷雨", seasonDesc: "生长期长，喜温耐热，夏末秋初收获", proverb: "谷雨种冬瓜，秋后抱回家", features: "果实能长得非常大，表皮会有白霜，充满惊喜。", plantPlan: "① 育苗移栽，谷雨前后定植；② 爬地或搭架需大空间；③ 选留主蔓第二个雌花坐果；④ 果实膨大期重施钾肥；⑤ 表皮挂白粉后采收，耐贮运。" },
+        { name: "苋菜", icon: "🥬", bestSeason: "立夏、小满", seasonDesc: "典型的夏季绿叶菜，耐热性极好", proverb: "五月苋菜正当时，六月苋菜金不换", features: "有红苋和绿苋，炒熟后汤汁变色，孩子非常喜欢。", plantPlan: "① 直播撒播，保持土壤湿润；② 苗高5cm间苗；③ 勤浇水，每采收一次追施速效氮肥；④ 约20-30天即可采收嫩茎叶；⑤ 分批播种延续供应。" },
+        { name: "韭菜", icon: "🌱", bestSeason: "春分、清明（也可秋季白露种植）", seasonDesc: "多年生宿根蔬菜，种一次可以吃好几年", proverb: "春食则香，夏食则臭（指夏天口感稍差，但依然能长）", features: "割完一茬长一茬，是体验“再生能力”的最佳作物。", plantPlan: "① 种子育苗或分株繁殖；② 春季或秋季定植；③ 每年收割3-4次，割后追肥；④ 夏季适当遮阴减少纤维；⑤ 三年后分墩复壮，持续高产。" },
+        { name: "菠菜", icon: "🥬", bestSeason: "秋分、寒露（也可早春种植）", seasonDesc: "喜凉爽耐寒，秋季播种口感最甜", proverb: "白露早，寒露迟，秋分种麦正当时（菠菜也类似）", features: "耐寒性强，秋冬季节难得的绿叶菜，根系呈漂亮的红色。", plantPlan: "① 种子温水浸种，秋分直播；② 保持土壤湿润；③ 真叶长出后间苗；④ 霜后采收更甜；⑤ 春季种植需早，防抽薹。" },
+        { name: "生菜", icon: "🥬", bestSeason: "白露、秋分", seasonDesc: "喜冷凉，生长周期短，适合秋季填补空档", proverb: "秋分种生菜，霜降剥叶吃", features: "可以剥叶子吃，不用整颗拔起，适合低年级持续观察。", plantPlan: "① 直播或育苗移栽，行株距适宜；② 生长期间保持湿润；③ 可多次剥取外叶；④ 喜冷凉避免高温；⑤ 约40-50天定植成熟。" },
+        { name: "大白菜", icon: "🥬", bestSeason: "处暑、白露", seasonDesc: "典型的秋播冬收蔬菜，喜冷凉", proverb: "头伏萝卜二伏菜（指夏末秋初），白露种白菜", features: "从散叶到“包心”的过程非常神奇，适合观察植物形态变化。", plantPlan: "① 白露前后播种育苗，苗龄25天；② 高垄定植，施足基肥；③ 莲座期控水蹲苗；④ 结球期加强水肥；⑤ 收获前捆叶护球，提高品质。" },
+        { name: "白萝卜", icon: "🥕", bestSeason: "处暑、白露", seasonDesc: "喜凉爽，秋季播种，冬季收获", proverb: "冬吃萝卜夏吃姜，不劳医生开药方", features: "埋在土里的部分变白膨大，拔萝卜的过程充满劳动乐趣。", plantPlan: "① 直播，避免移栽；② 选疏松土层深厚地块；③ 间苗2次后定苗；④ 肉质根膨大期追钾肥；⑤ 霜降后采收口感脆甜。" },
+        { name: "胡萝卜", icon: "🥕", bestSeason: "立秋、处暑", seasonDesc: "生长期较长，喜冷凉气候，秋冬收获", proverb: "立秋种萝卜，处暑移苗（或直接播种）", features: "叶子像羽毛一样漂亮，果实富含胡萝卜素，营养丰富。", plantPlan: "① 种子搓毛后直播，保持湿润；② 及时间苗，株距8-10cm；③ 苗期控水促进直根下扎；④ 追施磷钾肥；⑤ 充分着色后采收，可冬贮。" },
+        { name: "香菜", icon: "🌿", bestSeason: "白露、秋分", seasonDesc: "喜冷凉，耐寒性强，秋天种最香", proverb: "种菜不种香，滋味少一半", features: "种子需要搓开成两半再种，有特殊香气，是调味佳品。", plantPlan: "① 种子轻轻碾开，清水浸种；② 秋季直播，密播；③ 出苗后保持土壤湿润；④ 不需太多肥料，防高温；⑤ 株高15-20cm分批采收。" }
+    ];
+
+    // 构建每个植物的五页内容 (返回数组，每个元素是{title, htmlContent})
+    function buildFivePages(veg) {
+        // 页面1: 节气时令 + 农谚
+        const page1 = {
+            title: "🌾 节气与时令",
+            html: `
+                <div class="info-text"><span class="badge"><i class="fas fa-calendar-alt"></i> 最佳节气</span> ${veg.bestSeason}</div>
+                <div class="info-text"><span class="badge"><i class="fas fa-temperature-high"></i> 时节特征</span> ${veg.seasonDesc}</div>
+                <div class="proverb-box"><i class="fas fa-quote-left"></i> ${veg.proverb}</div>
+                <div class="info-text"><strong>🍃 气候适配</strong><br>${veg.name}在${veg.bestSeason}期间播种，地温适宜、雨量适中，顺应自然节律，病虫害减少，收成饱满。</div>
+                <div class="plant-step"><i class="fas fa-clock"></i> <strong>播种窗口</strong><br>建议${veg.bestSeason}节气前后5日内进行直播或定植，气温稳定在12~15℃以上最佳。</div>
+            `
+        };
+        // 页面2: 独特特点 + 观察价值
+        const page2 = {
+            title: "🔍 博物特点·观察之美",
+            html: `
+                <div class="info-text"><span class="badge"><i class="fas fa-eye"></i> 独特魅力</span> ${veg.features}</div>
+                <hr>
+                <div class="info-text"><strong>🎨 形态美学 & 食育趣味</strong><br>${veg.name === "黄瓜" ? "卷须攀爬，五角黄花，果实翠绿带刺，开花结果尤为直观。" : veg.name === "番茄" ? "羽状复叶，果实从青涩到红润，色彩渐变完美。" : veg.name === "茄子" ? "紫花端庄，果皮光泽，形态有长有圆。" : veg.name === "南瓜" ? "心形巨叶，橙黄大花，藤蔓霸气。" : veg.name === "丝瓜" ? "五角叶，棱果垂挂，老络成宝。" : veg.name === "苦瓜" ? "瘤状纹理奇特，苦味启发味蕾探索。" : veg.name === "冬瓜" ? "掌状大叶，白霜覆果。" : veg.name === "苋菜" ? "红叶绿茎，炒制天然胭脂色。" : veg.name === "韭菜" ? "丛生线叶，割后重生象征生命力。" : veg.name === "菠菜" ? "戟形叶红根，耐寒勇士。" : veg.name === "生菜" ? "莲座状脆叶，剥叶采收。" : veg.name === "大白菜" ? "波浪叶包心奇迹。" : veg.name === "白萝卜" ? "雪白肉质根，拔萝卜乐趣。" : veg.name === "胡萝卜" ? "羽状复叶，橙根营养。" : "伞形花序，搓种芳香，调味灵魂。"}</div>
+                <div class="proverb-box"><i class="fas fa-chalkboard-user"></i> 自然教育亮点：${veg.name}非常适合亲子观察，记录生长日记。</div>
+            `
+        };
+        // 页面3: 种植计划 · 上 (土壤/整地/水肥)
+        const page3 = {
+            title: "🧑‍🌾 种植计划·上",
+            html: `
+                <div class="info-text"><span class="badge"><i class="fas fa-trowel"></i> 整地与定植</span><br>✔ 排水良好，日照6h+；施腐熟有机肥2-3kg/m²。${veg.name.includes("瓜")?"高垄栽培利于排水。":"平畦或穴播。"}</div>
+                <div class="info-text"><span class="badge"><i class="fas fa-droplet"></i> 水肥核心</span><br>➤ 幼苗期控水促根深扎；➤ 花果期保持湿润，追施磷钾肥提升风味。</div>
+                <div class="plant-step"><strong>📏 定植密度</strong><br>${veg.name === "番茄"?"株距40cm，行距60cm":veg.name.includes("瓜")?"株距40-50cm":veg.name === "苋菜"?"行距20cm撒播":"依品种20-30cm"}，合理密植利于通风。</div>
+                <div class="info-text"><i class="fas fa-pagelines"></i> <strong>搭架/支撑</strong> ${veg.name === "黄瓜"?"人字架或网格架":veg.name.includes("瓜")?"棚架或篱架":veg.name === "番茄"?"插杆或吊蔓":"一般不需搭架"}</div>
+            `
+        };
+        // 页面4: 种植计划·下 (精细管理+病虫害)
+        const page4 = {
+            title: "🌿 种植计划·下",
+            html: `
+                <div class="plant-step"><strong>✂️ 植株管理要点</strong><br>${veg.plantPlan.substring(0, 100)}${veg.plantPlan.length>100?"…":""}</div>
+                <div class="info-text"><span class="badge"><i class="fas fa-bug"></i> 病虫害绿色防控</span><br>${veg.name.includes("瓜")?"预防白粉病/霜霉病，通风降湿，黄板诱杀蚜虫。":veg.name==="番茄"?"防晚疫病、脐腐病，轮作补钙。":veg.name==="大白菜"?"防软腐病，保持干爽。":"蚜虫/菜青虫可用苦参碱或人工捕捉。"}<br><strong>💡 增产窍门</strong>：${veg.name==="番茄"?"疏花疏果提高单果重":veg.name==="茄子"?"及时摘除老叶":veg.name==="丝瓜"?"人工辅助授粉":"中耕松土，增强根系活力"}</div>
+            `
+        };
+        // 页面5: 采收与收获喜悦 + 留种指南
+        let harvestNote = "";
+        if(veg.name.includes("黄瓜")) harvestNote = "开花后10-12天，顶花带刺时采收，勤摘促后续瓜。";
+        else if(veg.name === "番茄") harvestNote = "转色90%时采摘风味最佳，亦可完熟。";
+        else if(veg.name === "茄子") harvestNote = "萼片与果连接处白色环变窄时采收嫩茄。";
+        else if(veg.name === "南瓜") harvestNote = "果柄木质化，表皮硬化，采收后后熟。";
+        else if(veg.name === "丝瓜") harvestNote = "嫩瓜长20-25cm时采收，过老留种。";
+        else if(veg.name === "苦瓜") harvestNote = "果瘤饱满翠绿时采收，过熟变黄苦味加重。";
+        else if(veg.name === "冬瓜") harvestNote = "白霜浓厚，敲击沉闷声采收。";
+        else if(veg.name === "苋菜") harvestNote = "株高15-20cm齐泥采收，可再生1-2茬。";
+        else if(veg.name === "韭菜") harvestNote = "株高25-30cm留茬2-3cm收割，每年4-5次。";
+        else if(veg.name === "菠菜") harvestNote = "霜降前后叶片肥厚整株采收。";
+        else if(veg.name === "生菜") harvestNote = "剥取外叶，内叶持续生长。";
+        else if(veg.name === "大白菜") harvestNote = "包心紧实后晴天砍收。";
+        else if(veg.name === "白萝卜") harvestNote = "肉质根直径5-8cm拔出。";
+        else if(veg.name === "胡萝卜") harvestNote = "色泽橙红轻拔采收。";
+        else harvestNote = "叶片充分展开、香气浓郁时采收。";
+        
+        const page5 = {
+            title: "🧺 采收·喜悦与留种",
+            html: `
+                <div class="info-text"><span class="badge"><i class="fas fa-calendar-check"></i> 最佳采收期</span><br>${harvestNote}</div>
+                <div class="proverb-box"><i class="fas fa-heart"></i> 收获成就感：亲手种植 ${veg.name} 从种子到餐桌，感受节气馈赠，体悟耕耘与自然循环。</div>
+                <div class="plant-step"><strong>🌱 留种指南 & 来年计划</strong><br>选择健壮、无病害植株留种，充分成熟后采种，干燥储存。${veg.bestSeason}再次播种，生生不息，打造可持续家庭菜园。</div>
+                <div class="info-text"><i class="fas fa-cloud-sun"></i> 顺应节气 · 福州田园季 · 每一页都是农人的智慧</div>
+            `
+        };
+        return [page1, page2, page3, page4, page5];
+    }
+
+    // 渲染所有植物的卡片册 (每个植物一个独立组件, 内部维护当前页码)
+    const gridContainer = document.getElementById('vegetable-grid');
+    
+    function renderAllPlants() {
+        gridContainer.innerHTML = '';
+        vegetablesData.forEach((veg, idx) => {
+            const pages = buildFivePages(veg);
+            const plantId = `plant-${idx}`;
+            // 创建植物卡片叠层容器
+            const plantDiv = document.createElement('div');
+            plantDiv.className = 'plant-cardstack';
+            plantDiv.setAttribute('data-plant-idx', idx);
+            
+            // 头部信息
+            const headerHtml = `
+                <div class="veg-stack-header">
+                    <div class="veg-stack-icon">${veg.icon}</div>
+                    <div class="veg-stack-name">${veg.name}</div>
+                    <div class="veg-stack-badge"><i class="fas fa-seedling"></i> ${veg.bestSeason.split('、')[0]}</div>
+                </div>
+                <div class="cards-stack" id="${plantId}">
+                    <div class="card-slot" id="card-slot-${idx}">
+                        <!-- 动态卡片内容将用js渲染 -->
+                    </div>
+                    <div class="nav-buttons">
+                        <button class="nav-btn prev-btn" data-idx="${idx}"><i class="fas fa-chevron-left"></i> 上一页</button>
+                        <button class="nav-btn next-btn" data-idx="${idx}">下一页 <i class="fas fa-chevron-right"></i></button>
+                    </div>
+                </div>
+            `;
+            plantDiv.innerHTML = headerHtml;
+            gridContainer.appendChild(plantDiv);
+            
+            // 存储当前植物的页码状态到DOM属性中
+            const state = { currentPage: 0, totalPages: 5, pagesData: pages };
+            plantDiv.state = state;
+            // 渲染当前卡片
+            const slot = document.getElementById(`card-slot-${idx}`);
+            const renderCurrentCard = () => {
+                const page = state.pagesData[state.currentPage];
+                slot.innerHTML = `
+                    <div class="single-card">
+                        <div class="page-indicator">
+                            <span class="page-number"><i class="fas fa-book-open"></i> 第 ${state.currentPage+1} 页</span>
+                            <span class="page-total">共 ${state.totalPages} 页 · ${veg.name}</span>
+                        </div>
+                        <div class="card-content">
+                            <div class="card-title"><i class="fas fa-leaf"></i> ${page.title}</div>
+                            ${page.html}
+                        </div>
+                        <div style="font-size:0.7rem; color:#ad9f62; text-align:center; margin-top:8px;"><i class="fas fa-hand-point-up"></i> 点击下方按钮翻阅</div>
+                    </div>
+                `;
+            };
+            renderCurrentCard();
+            
+            // 绑定按钮事件
+            const prevBtn = plantDiv.querySelector('.prev-btn');
+            const nextBtn = plantDiv.querySelector('.next-btn');
+            prevBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if(plantDiv.state.currentPage > 0) {
+                    plantDiv.state.currentPage--;
+                    renderCurrentCard();
+                } else {
+                    // 提示震动效果轻提醒
+                    prevBtn.style.transform = 'scale(0.96)';
+                    setTimeout(()=> prevBtn.style.transform = '', 150);
+                }
+            });
+            nextBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if(plantDiv.state.currentPage < plantDiv.state.totalPages-1) {
+                    plantDiv.state.currentPage++;
+                    renderCurrentCard();
+                } else {
+                    nextBtn.style.transform = 'scale(0.96)';
+                    setTimeout(()=> nextBtn.style.transform = '', 150);
+                }
+            });
+        });
+    }
+    
+    renderAllPlants();
+</script>
+</body>
+</html>
